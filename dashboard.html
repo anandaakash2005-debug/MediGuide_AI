@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MediGuide AI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">🧠</span>
+                <span class="logo-text">MediGuide AI</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="dashboard.html" class="nav-link active">Dashboard</a>
+                <a href="reminders.html" class="nav-link">Reminders</a>
+                <a href="doctors.html" class="nav-link">Find Doctors</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <h1 class="page-title">Dashboard</h1>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div>
+                            <p class="stat-label">Reminders Today</p>
+                            <p class="stat-value" id="reminders-today">0</p>
+                        </div>
+                        <div class="stat-icon">⏰</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div>
+                            <p class="stat-label">Completed</p>
+                            <p class="stat-value" id="completed-today">0</p>
+                        </div>
+                        <div class="stat-icon">✅</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div>
+                            <p class="stat-label">Total Reminders</p>
+                            <p class="stat-value" id="total-reminders">0</p>
+                        </div>
+                        <div class="stat-icon">📅</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h2 class="card-title">Today's Schedule</h2>
+                    <div id="today-schedule" class="schedule-list"></div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h2 class="card-title">Health Plan Summary</h2>
+                    <div id="health-plan-summary" class="summary-content"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>
+

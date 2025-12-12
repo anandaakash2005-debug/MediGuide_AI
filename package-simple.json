@@ -1,0 +1,10 @@
+{
+  "name": "mediguide-ai-simple",
+  "version": "1.0.0",
+  "description": "MediGuide AI - Vanilla HTML/CSS/JS version",
+  "scripts": {
+    "server": "node server.js"
+  },
+  "dependencies": {}
+}
+

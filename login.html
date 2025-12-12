@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - MediGuide AI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">🧠</span>
+                <span class="logo-text">MediGuide AI</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="reminders.html" class="nav-link">Reminders</a>
+                <a href="doctors.html" class="nav-link">Find Doctors</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h1 class="auth-title">Welcome to MediGuide AI</h1>
+                    <p class="auth-subtitle">Sign in to save your health plans and track your progress</p>
+                </div>
+
+                <div class="card auth-card">
+                    <h2 id="auth-mode-title" class="card-title">Sign In</h2>
+                    <div id="auth-error" class="error-message" style="display: none;"></div>
+
+                    <form id="auth-form">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input
+                                type="email"
+                                id="auth-email"
+                                class="form-input"
+                                placeholder="your@email.com"
+                                required
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input
+                                type="password"
+                                id="auth-password"
+                                class="form-input"
+                                placeholder="••••••••"
+                                required
+                                minlength="6"
+                            />
+                        </div>
+
+                        <button type="submit" id="auth-submit-btn" class="btn btn-primary btn-block">
+                            <span id="auth-btn-text">Sign In</span>
+                            <span id="auth-btn-loader" class="loader" style="display: none;"></span>
+                        </button>
+                    </form>
+
+                    <div class="auth-divider">
+                        <span>Or continue with</span>
+                    </div>
+
+                    <button id="google-auth-btn" class="btn btn-google btn-block">
+                        <span>🔍</span> Google
+                    </button>
+
+                    <p class="auth-switch">
+                        <span id="auth-switch-text">Don't have an account? </span>
+                        <button id="auth-switch-btn" class="link-btn">Sign up</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/auth.js"></script>
+</body>
+</html>
+

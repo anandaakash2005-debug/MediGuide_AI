@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediGuide AI - Your Personal AI Health Advisor</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">🧠</span>
+                <span class="logo-text">MediGuide AI</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="reminders.html" class="nav-link">Reminders</a>
+                <a href="doctors.html" class="nav-link">Find Doctors</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="login.html" class="nav-link" id="login-link">Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="hero-section">
+                <div class="hero-icon">✨</div>
+                <h1 class="hero-title">MediGuide AI</h1>
+                <p class="hero-subtitle">Your Personal AI Health Advisor</p>
+                <p class="hero-description">
+                    Get personalized diet, exercise, medicine, and doctor recommendations
+                </p>
+            </div>
+
+            <div class="card main-card">
+                <form id="health-plan-form" class="health-form">
+                    <div class="form-group">
+                        <label for="disease-input" class="form-label">
+                            Enter Your Disease or Health Condition
+                        </label>
+                        <input
+                            type="text"
+                            id="disease-input"
+                            class="form-input"
+                            placeholder="e.g., Diabetes, Hypertension, Arthritis..."
+                            required
+                        />
+                    </div>
+
+                    <div id="error-message" class="error-message" style="display: none;"></div>
+
+                    <button type="submit" id="generate-btn" class="btn btn-primary">
+                        <span id="btn-text">Generate Health Plan</span>
+                        <span id="btn-loader" class="loader" style="display: none;"></span>
+                    </button>
+                </form>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🍽️</div>
+                        <h3 class="feature-title">Personalized Diet</h3>
+                        <p class="feature-description">
+                            Foods to take and avoid based on your condition
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🏋️</div>
+                        <h3 class="feature-title">Exercise Plan</h3>
+                        <p class="feature-description">
+                            Custom workouts with sets and reps
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💊</div>
+                        <h3 class="feature-title">Medicine Guide</h3>
+                        <p class="feature-description">
+                            Recommended medications and dosages
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-note">
+                <span class="heart">❤️</span>
+                <span>Powered by Akash • Your health is our priority</span>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
+

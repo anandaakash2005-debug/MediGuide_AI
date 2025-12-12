@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Reminders - MediGuide AI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">🧠</span>
+                <span class="logo-text">MediGuide AI</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="reminders.html" class="nav-link active">Reminders</a>
+                <a href="doctors.html" class="nav-link">Find Doctors</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header-row">
+                <div>
+                    <h1 class="page-title">Smart Reminders</h1>
+                    <p class="page-subtitle">Set reminders for meals and medications</p>
+                </div>
+                <button id="add-reminder-btn" class="btn btn-primary">
+                    <span>+</span> Add Reminder
+                </button>
+            </div>
+
+            <div id="reminder-form" class="card reminder-form-card" style="display: none;">
+                <h2 class="card-title">New Reminder</h2>
+                <form id="reminder-form-element">
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select id="reminder-type" class="form-input">
+                            <option value="pill">💊 Medicine</option>
+                            <option value="meal">🍽️ Meal</option>
+                        </select>
+                    </div>
+
+                    <div id="medicine-name-group" class="form-group">
+                        <label class="form-label">Medicine Name</label>
+                        <input
+                            type="text"
+                            id="medicine-name"
+                            class="form-input"
+                            placeholder="e.g., Metformin"
+                        />
+                    </div>
+
+                    <div id="meal-type-group" class="form-group" style="display: none;">
+                        <label class="form-label">Meal Type</label>
+                        <select id="meal-type" class="form-input">
+                            <option value="">Select meal</option>
+                            <option value="Breakfast">Breakfast</option>
+                            <option value="Lunch">Lunch</option>
+                            <option value="Dinner">Dinner</option>
+                            <option value="Snack">Snack</option>
+                        </select>
+                    </div>
+
+                    <div id="reminder-name-group" class="form-group">
+                        <label class="form-label">Reminder Name</label>
+                        <input
+                            type="text"
+                            id="reminder-name"
+                            class="form-input"
+                            placeholder="e.g., Morning Medicine"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Time</label>
+                        <input type="time" id="reminder-time" class="form-input" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Message (Optional)</label>
+                        <input
+                            type="text"
+                            id="reminder-message"
+                            class="form-input"
+                            placeholder="Custom reminder message"
+                        />
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Add Reminder</button>
+                        <button type="button" id="cancel-reminder-btn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="reminders-list" class="reminders-list"></div>
+        </div>
+    </main>
+
+    <script type="module" src="js/reminders.js"></script>
+</body>
+</html>
+
