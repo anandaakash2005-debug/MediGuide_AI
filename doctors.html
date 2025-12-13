@@ -1,71 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Find Doctors - MediGuide AI</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Doctors - MediGuide AI</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">🧠</span>
+                <span class="logo-text">MediGuide AI</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="dashboard.html" class="nav-link">Dashboard</a>
+                <a href="reminders.html" class="nav-link">Reminders</a>
+                <a href="doctors.html" class="nav-link active">Find Doctors</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+            </div>
+        </div>
+    </nav>
 
-<h1>Find Nearby Doctors</h1>
-<input id="specialization" placeholder="Cardiologist, Dentist…" />
-<button onclick="init()">Find Doctors</button>
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Find Nearby Doctors</h1>
+                <p class="page-subtitle">Discover healthcare professionals in your area</p>
+            </div>
 
-<div id="map" style="height:500px;"></div>
+            <div class="card search-card">
+                <div class="search-form">
+                    <div class="form-group">
+                        <label class="form-label">Doctor Specialization</label>
+                        <input
+                            type="text"
+                            id="specialization-input"
+                            class="form-input"
+                            placeholder="e.g., Cardiologist, Diabetologist, General Practitioner"
+                        />
+                    </div>
+                    <button id="find-doctors-btn" class="btn btn-primary">
+                        <span id="find-btn-text">🔍 Find Doctors</span>
+                        <span id="find-btn-loader" class="loader" style="display: none;"></span>
+                    </button>
+                </div>
+                <div id="error-message" class="error-message" style="display: none;"></div>
+            </div>
 
-<script>
-let map;
+            <div id="map-container" class="map-container" style="display: none;"></div>
 
-async function loadMapScript() {
-  const res = await fetch("http://localhost:3001/api/maps-key");
-  const data = await res.json();
+            <div id="doctors-grid" class="doctors-grid"></div>
 
-  const script = document.createElement("script");
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&libraries=places`;
-  script.defer = true;
-  script.async = true;
-  script.onload = () => initMap();
-  document.head.appendChild(script);
-}
+            <div id="no-doctors" class="empty-state" style="display: none;">
+                <div class="empty-icon">📍</div>
+                <p class="empty-text">No doctors found</p>
+                <p class="empty-subtext">Enter a specialization and click "Find Doctors" to search</p>
+            </div>
+        </div>
+    </main>
 
-function initMap() {
-  navigator.geolocation.getCurrentPosition(pos => {
-    const center = {
-      lat: pos.coords.latitude,
-      lng: pos.coords.longitude
-    };
-
-    map = new google.maps.Map(document.getElementById("map"), {
-      center,
-      zoom: 14
-    });
-
-    findDoctors(center);
-  });
-}
-
-async function findDoctors(center) {
-  const type = document.getElementById("specialization").value || "doctor";
-
-  const res = await fetch(
-    `http://localhost:3001/api/nearby-doctors?lat=${center.lat}&lng=${center.lng}&type=${type}`
-  );
-
-  const data = await res.json();
-
-  data.results.forEach(place => {
-    new google.maps.Marker({
-      map,
-      position: place.geometry.location,
-      title: place.name
-    });
-  });
-}
-
-function init() {
-  if (!window.google) loadMapScript();
-}
-</script>
-
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB_zNOIKq17N04xbiU0tXqkDzB_wA4MoAg
+&libraries=places" async defer></script>
+    <script type="module" src="js/doctors.js"></script>
 </body>
 </html>
