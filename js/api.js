@@ -1,5 +1,5 @@
 // API utility for making requests
-const API_BASE_URL = 'http://localhost:3001/api'; // Change this to your backend URL
+const API_BASE_URL = '/api'; // Change this to your backend URL
 
 export async function generateHealthPlan(disease, location = '') {
     try {
