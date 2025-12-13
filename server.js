@@ -1,151 +1,80 @@
 require("dotenv").config();
-const http = require('http');
-const https = require('https');
-const { URL } = require('url');
+const express = require("express");
+const https = require("https");
+const path = require("path");
 
-const PORT = 3001;
+const app = express();
+const PORT = process.env.PORT || 3001;
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
-if (!OPENROUTER_API_KEY) {
-    console.warn('⚠️ Warning: OPENROUTER_API_KEY not set. Health plan generation will not work.');
-}
+app.use(express.json());
 
-const server = http.createServer((req, res) => {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+// ✅ Serve ALL static files (HTML, CSS, JS)
+app.use(express.static(__dirname));
 
-    if (req.method === 'OPTIONS') {
-        res.writeHead(200);
-        res.end();
-        return;
-    }
+/* ---------- HEALTH PLAN API ---------- */
+app.post("/api/health-plan", (req, res) => {
+  const { disease, location } = req.body;
 
-    const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+  if (!disease) {
+    return res.status(400).json({ error: "Disease name is required" });
+  }
 
-    if (parsedUrl.pathname === '/api/health-plan' && req.method === 'POST') {
-        let body = '';
+  if (!OPENROUTER_API_KEY) {
+    return res.status(500).json({ error: "OpenRouter API key not configured" });
+  }
 
-        req.on('data', chunk => {
-            body += chunk.toString();
-        });
+  generateHealthPlan(disease, location)
+    .then(data => res.json({ success: true, data }))
+    .catch(err => res.status(500).json({ error: err.message }));
+});
 
-        req.on('end', () => {
-            try {
-                const { disease, location } = JSON.parse(body);
-
-                if (!disease) {
-                    res.writeHead(400, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: 'Disease name is required' }));
-                    return;
-                }
-
-                if (!OPENROUTER_API_KEY) {
-                    res.writeHead(500, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({ error: 'OpenRouter API key not configured' }));
-                    return;
-                }
-
-                generateHealthPlan(disease, location)
-                    .then(healthPlan => {
-                        res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ success: true, data: healthPlan }));
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        res.writeHead(500, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ error: error.message || 'Failed to generate health plan' }));
-                    });
-            } catch (error) {
-                res.writeHead(400, { 'Content-Type': 'application/json' });
-                res.end(JSON.stringify({ error: 'Invalid request body' }));
-            }
-        });
-    } else {
-        res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Not found' }));
-    }
+/* ---------- ROOT PAGE ---------- */
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 function generateHealthPlan(disease, userLocation) {
-    return new Promise((resolve, reject) => {
-        const prompt = `The user has the disease: ${disease}. ${userLocation ? `User location: ${userLocation}.` : ''}
+  return new Promise((resolve, reject) => {
+    const prompt = `The user has the disease: ${disease}.
+Return JSON only with diet, exercise, medicine, and doctor specialization.`;
 
-Generate a complete personalized health plan including:
-1. Foods to eat and avoid
-2. Recommended exercises (3–5)
-3. Common medicine (name, dosage per day, duration)
-4. Type of doctor and specialization
-
-Return valid JSON only with this structure:
-{
-  "diet": { "take": [], "avoid": [] },
-  "exercise": [{ "name": "", "sets": 0, "reps": "" }],
-  "medicine": [{ "name": "", "dosage": "", "duration": "" }],
-  "doctor": { "specialization": "", "location": "${userLocation || 'General location'}" }
-}`;
-
-        const data = JSON.stringify({
-            model: "openai/gpt-oss-20b:free",
-            messages: [
-                {
-                    role: 'system',
-                    content: 'You are a medical AI assistant. Always respond with JSON only.'
-                },
-                {
-                    role: 'user',
-                    content: prompt
-                }
-            ],
-            temperature: 0.7,
-            response_format: { type: 'json_object' },
-        });
-
-        const options = {
-            hostname: 'openrouter.ai',
-            path: '/api/v1/chat/completions',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-                'Referer': 'http://localhost:3001', // ✅ Corrected
-                'X-Title': 'NutriBuddy AI',
-                'Content-Length': data.length,
-            },
-        };
-
-        const req = https.request(options, (res) => {
-            let responseData = '';
-
-            res.on('data', chunk => (responseData += chunk));
-            res.on('end', () => {
-                console.log("🩺 Raw OpenRouter Response:", responseData);
-                try {
-                    const response = JSON.parse(responseData);
-                    const content = response.choices?.[0]?.message?.content;
-
-                    if (!content) {
-                        reject(new Error('No response from OpenRouter'));
-                        return;
-                    }
-
-                    const healthPlan = JSON.parse(content);
-                    resolve(healthPlan);
-                } catch (error) {
-                    console.error('Parse error:', responseData);
-                    reject(new Error('Failed to parse OpenRouter response'));
-                }
-            });
-        });
-
-        req.on('error', error => reject(error));
-        req.write(data);
-        req.end();
+    const data = JSON.stringify({
+      model: "openai/gpt-oss-20b:free",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" }
     });
+
+    const options = {
+      hostname: "openrouter.ai",
+      path: "/api/v1/chat/completions",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        "Content-Length": data.length
+      }
+    };
+
+    const req = https.request(options, res => {
+      let body = "";
+      res.on("data", c => (body += c));
+      res.on("end", () => {
+        try {
+          const json = JSON.parse(body);
+          resolve(JSON.parse(json.choices[0].message.content));
+        } catch {
+          reject(new Error("Failed to parse response"));
+        }
+      });
+    });
+
+    req.on("error", reject);
+    req.write(data);
+    req.end();
+  });
 }
 
-server.listen(PORT, () => {
-    console.log(`✅ Server running on http://localhost:${PORT}`);
-    console.log(`🔑 Using OpenRouter API key: ${OPENROUTER_API_KEY ? 'Set' : 'Missing'}`);
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
 });
