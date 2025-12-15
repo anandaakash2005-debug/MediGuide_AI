@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In - MediGuide AI</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="nav-container">
@@ -33,43 +35,29 @@
 
                 <div class="card auth-card">
                     <h2 id="auth-mode-title" class="card-title">Sign In</h2>
+                    <div class="trust-note">
+                        🔐 We never ask for passwords or bank details.<br>
+                        OTP is used only for email verification.
+                    </div>
                     <div id="auth-error" class="error-message" style="display: none;"></div>
 
                     <form id="auth-form">
                         <div class="form-group">
                             <label class="form-label">Email</label>
-                            <input
-                                type="email"
-                                id="auth-email"
-                                class="form-input"
-                                placeholder="your@email.com"
-                                required
-                            />
+                            <input type="email" id="auth-email" class="form-input" placeholder="your@email.com"
+                                required />
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Phone Number</label>
-                            <input
-                                type="tel"
-                                id="auth-phone"
-                                class="form-input"
-                                placeholder="Enter phone number"
-                                pattern="[0-9]{10}"
-                                maxlength="10"
-                                required
-                            />
+                            <input type="tel" id="auth-phone" class="form-input" placeholder="Enter phone number"
+                                pattern="[0-9]{10}" maxlength="10" required />
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Password</label>
-                            <input
-                                type="password"
-                                id="auth-password"
-                                class="form-input"
-                                placeholder="••••••••"
-                                required
-                                minlength="6"
-                            />
+                            <input type="password" id="auth-password" class="form-input" placeholder="••••••••" required
+                                minlength="6" />
                         </div>
 
                         <button type="submit" id="auth-submit-btn" class="btn btn-primary btn-block">
@@ -95,7 +83,15 @@
         </div>
     </main>
 
+    <footer class="site-footer">
+        <p>© 2025 <strong>MediGuide AI</strong> — Medical Assistance Platform</p>
+        <p class="footer-trust">
+            🔒 We never ask for passwords, bank details, or payment information.
+        </p>
+    </footer>
+
+
     <script type="module" src="js/auth.js"></script>
 </body>
-</html>
 
+</html>
