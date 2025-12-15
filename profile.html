@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - MediGuide AI</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="nav-container">
@@ -34,6 +36,9 @@
                         <div>
                             <h2 id="user-name" class="profile-name">Guest User</h2>
                             <p id="user-email" class="profile-email">Not signed in</p>
+                            <p class="profile-phone">
+                                📞 <span id="user-phone">Not provided</span>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -62,12 +67,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Default Location</label>
-                        <input
-                            type="text"
-                            id="user-location"
-                            class="form-input"
-                            placeholder="e.g., Kolkata, India"
-                        />
+                        <input type="text" id="user-location" class="form-input" placeholder="e.g., Kolkata, India" />
                         <p class="form-help">This location will be used for doctor recommendations</p>
                     </div>
                 </div>
@@ -89,5 +89,5 @@
 
     <script type="module" src="js/profile.js"></script>
 </body>
-</html>
 
+</html>

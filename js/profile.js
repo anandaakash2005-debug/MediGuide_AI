@@ -8,6 +8,7 @@ const userLocation = storage.get(STORAGE_KEYS.USER_LOCATION) || '';
 if (user) {
     document.getElementById('user-name').textContent = user.displayName || 'User';
     document.getElementById('user-email').textContent = user.email || '';
+    document.getElementById('user-phone').textContent = user.phone || 'Not provided';
     document.getElementById('logout-btn').style.display = 'block';
 } else {
     document.getElementById('user-name').textContent = 'Guest User';

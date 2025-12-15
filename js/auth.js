@@ -1,6 +1,9 @@
 import { storage, STORAGE_KEYS } from './storage.js';
 
 let isLogin = true;
+let pendingUser = null; // temp store before OTP verify
+
+
 
 const authForm = document.getElementById('auth-form');
 const authModeTitle = document.getElementById('auth-mode-title');
@@ -10,6 +13,7 @@ const authBtnLoader = document.getElementById('auth-btn-loader');
 const authSwitchBtn = document.getElementById('auth-switch-btn');
 const authSwitchText = document.getElementById('auth-switch-text');
 const authError = document.getElementById('auth-error');
+
 
 // Check if user is already logged in
 const user = storage.get(STORAGE_KEYS.USER);
@@ -40,26 +44,62 @@ function updateAuthMode() {
 // Handle form submission
 authForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
+    const phone = document.getElementById('auth-phone')?.value;
+    
 
     setLoading(true);
     hideError();
 
+
     try {
-        // Simple mock authentication (replace with real Firebase/auth)
-        // For demo purposes, we'll just store user data
-        const userData = {
+
+        if (isLogin) {
+            const userData = {
+                uid: Date.now().toString(),
+                email,
+                displayName: email.split('@')[0],
+            };
+
+            storage.set(STORAGE_KEYS.USER, userData);
+            window.location.href = 'dashboard.html';
+            return;
+        }
+
+        if (!phone) {
+            showError("Phone number is required");
+            setLoading(false);
+            return;
+        }
+
+        pendingUser = {
             uid: Date.now().toString(),
             email,
+            phone,
             displayName: email.split('@')[0],
         };
 
-        storage.set(STORAGE_KEYS.USER, userData);
-        
-        // Redirect to dashboard
-        window.location.href = 'dashboard.html';
+        // Send OTP email
+        const res = await fetch("http://localhost:3001/send-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+            showError("Failed to send OTP");
+            setLoading(false);
+            return;
+        }
+
+
+        // Show OTP section
+        document.getElementById("otp-section").style.display = "block";
+
+
     } catch (err) {
         showError(err.message || 'Authentication failed');
     } finally {
@@ -77,6 +117,42 @@ document.getElementById('google-auth-btn').addEventListener('click', () => {
 
     storage.set(STORAGE_KEYS.USER, userData);
     window.location.href = 'dashboard.html';
+});
+
+// ✅ 6️⃣ PLACE OTP VERIFY CODE HERE (THIS IS THE ANSWER)
+document.getElementById("verify-otp-btn")?.addEventListener("click", async () => {
+    const otp = document.getElementById("otp-input").value;
+
+    if (!otp || otp.length !== 6) {
+        showError("Please enter a valid 6-digit OTP");
+        return;
+    }
+
+
+    if (!pendingUser) {
+        showError("No signup in progress");
+        return;
+    }
+
+    const res = await fetch("http://localhost:3001/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: pendingUser.email,
+            otp,
+            fullName: pendingUser.displayName,
+            phone: pendingUser.phone
+        }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        storage.set(STORAGE_KEYS.USER, pendingUser);
+        window.location.href = "dashboard.html";
+    } else {
+        showError(data.error || "OTP verification failed");
+    }
 });
 
 function setLoading(loading) {
