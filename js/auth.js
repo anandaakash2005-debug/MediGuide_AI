@@ -1,5 +1,11 @@
 import { storage, STORAGE_KEYS } from './storage.js';
 
+const API_BASE =
+    location.hostname === "localhost"
+        ? "http://localhost:3001"
+        : "https://mediguide-ai-d2vc.onrender.com";
+
+
 let isLogin = true;
 let pendingUser = null; // temp store before OTP verify
 
@@ -47,7 +53,7 @@ authForm.addEventListener('submit', async (e) => {
 
     const email = document.getElementById('auth-email').value;
     const phone = document.getElementById('auth-phone')?.value;
-    
+
 
     setLoading(true);
     hideError();
@@ -80,12 +86,12 @@ authForm.addEventListener('submit', async (e) => {
             displayName: email.split('@')[0],
         };
 
-        // Send OTP email
-        const res = await fetch("http://localhost:3001/send-otp", {
+        const res = await fetch(`${API_BASE}/send-otp`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email }),
         });
+
 
         const data = await res.json();
 
@@ -134,7 +140,7 @@ document.getElementById("verify-otp-btn")?.addEventListener("click", async () =>
         return;
     }
 
-    const res = await fetch("http://localhost:3001/verify-otp", {
+    const res = await fetch(`${API_BASE}/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -144,6 +150,7 @@ document.getElementById("verify-otp-btn")?.addEventListener("click", async () =>
             phone: pendingUser.phone
         }),
     });
+
 
     const data = await res.json();
 
