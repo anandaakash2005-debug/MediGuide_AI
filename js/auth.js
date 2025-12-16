@@ -3,7 +3,8 @@ import { storage, STORAGE_KEYS } from './storage.js';
 const API_BASE =
     location.hostname === "localhost"
         ? "http://localhost:3001"
-        : "https://mediguide-ai-d2vc.onrender.com";
+        : "https://mediguideai-production.up.railway.app";
+
 
 
 let isLogin = true;
@@ -53,6 +54,14 @@ document.getElementById("auth-form").addEventListener("submit", async (e) => {
 
     const email = document.getElementById('auth-email').value;
     const phone = document.getElementById('auth-phone')?.value;
+    const password = document.getElementById('auth-password')?.value;
+
+    if (!password || password.length < 6) {
+        showError("Password must be at least 6 characters");
+        setLoading(false);
+        return;
+    }
+
 
 
     setLoading(true);
@@ -62,6 +71,12 @@ document.getElementById("auth-form").addEventListener("submit", async (e) => {
     try {
 
         if (isLogin) {
+            if (!email) {
+                showError("Email is required");
+                setLoading(false);
+                return;
+            }
+
             const userData = {
                 uid: Date.now().toString(),
                 email,
@@ -72,6 +87,7 @@ document.getElementById("auth-form").addEventListener("submit", async (e) => {
             window.location.href = 'dashboard.html';
             return;
         }
+
 
         if (!phone) {
             showError("Phone number is required");
@@ -104,6 +120,8 @@ document.getElementById("auth-form").addEventListener("submit", async (e) => {
 
         // Show OTP section
         document.getElementById("otp-section").style.display = "block";
+        setLoading(false);
+        return;
 
 
     } catch (err) {
