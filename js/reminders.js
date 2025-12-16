@@ -4,7 +4,9 @@ import { scheduleReminder, clearReminderInterval, requestNotificationPermission 
 // 🔐 AUTH GUARD (ADD THIS)
 const user = storage.get(STORAGE_KEYS.USER);
 if (!user) {
-    window.location.href = 'login.html';
+    alert("Please login first");
+    window.location.href = "login.html";
+    throw new Error("User not logged in");
 }
 
 // let reminders = storage.get(STORAGE_KEYS.REMINDERS) || [];
@@ -82,19 +84,31 @@ reminderFormElement.addEventListener('submit', async (e) => {
         medicineName
     };
 
-    await fetch("http://localhost:3001/api/reminders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            email: user.email,
-            title: newReminder.name,
-            message: newReminder.message,
-            time: newReminder.time
-        }),
-    });
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/reminders`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                email: user.email,
+                title: newReminder.name,
+                message: newReminder.message,
+                time: newReminder.time
+            }),
+        });
 
-    // reminders.push(newReminder);
-    // storage.set(STORAGE_KEYS.REMINDERS, reminders);
+        if (!res.ok) throw new Error("Server error");
+
+    } catch (err) {
+        console.error(err);
+        alert("Reminder server not reachable");
+        return; // STOP here
+    }
+
+
+    let reminders = storage.get(STORAGE_KEYS.REMINDERS) || [];
+    reminders.push(newReminder);
+    storage.set(STORAGE_KEYS.REMINDERS, reminders);
+
 
     // Schedule the reminder
     scheduleReminder(newReminder);

@@ -48,7 +48,7 @@ function updateAuthMode() {
 }
 
 // Handle form submission
-authForm.addEventListener('submit', async (e) => {
+document.getElementById("auth-form").addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const email = document.getElementById('auth-email').value;
@@ -112,6 +112,15 @@ authForm.addEventListener('submit', async (e) => {
         setLoading(false);
     }
 });
+
+const googleBtn = document.getElementById("google-auth-btn");
+
+if (googleBtn) {
+    googleBtn.addEventListener("click", () => {
+        alert("Google login coming soon. Please use Email login.");
+    });
+}
+
 
 // Google auth (mock)
 document.getElementById('google-auth-btn').addEventListener('click', () => {
