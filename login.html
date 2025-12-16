@@ -4,6 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; connect-src 'self' https://mediguide-ai-d2vc.onrender.com https://openrouter.ai;">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+
     <title>Sign In - MediGuide AI</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -85,10 +90,17 @@
 
     <footer class="site-footer">
         <p>© 2025 <strong>MediGuide AI</strong> — Medical Assistance Platform</p>
+
+        <p class="footer-links">
+            <a href="privacy.html">Privacy Policy</a> |
+            <a href="contact.html">Contact</a>
+        </p>
+
         <p class="footer-trust">
             🔒 We never ask for passwords, bank details, or payment information.
         </p>
     </footer>
+
 
 
     <script type="module" src="js/auth.js"></script>
