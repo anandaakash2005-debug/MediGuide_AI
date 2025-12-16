@@ -1,4 +1,10 @@
 require("dotenv").config();
+
+console.log("MYSQLHOST:", process.env.MYSQLHOST);
+console.log("MYSQLPORT:", process.env.MYSQLPORT);
+console.log("MYSQLUSER:", process.env.MYSQLUSER);
+console.log("MYSQLDATABASE:", process.env.MYSQLDATABASE);
+
 const db = require("./js/db");
 const express = require("express");
 const https = require("https");
