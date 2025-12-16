@@ -56,11 +56,14 @@ document.getElementById("auth-form").addEventListener("submit", async (e) => {
     const phone = document.getElementById('auth-phone')?.value;
     const password = document.getElementById('auth-password')?.value;
 
-    if (!password || password.length < 6) {
-        showError("Password must be at least 6 characters");
-        setLoading(false);
-        return;
+    if (!isLogin) {
+        if (!password || password.length < 6) {
+            showError("Password must be at least 6 characters");
+            setLoading(false);
+            return;
+        }
     }
+
 
 
 
@@ -133,18 +136,19 @@ document.getElementById("auth-form").addEventListener("submit", async (e) => {
 
 const googleBtn = document.getElementById("google-auth-btn");
 
+if (googleBtn) {
+    googleBtn.addEventListener('click', () => {
+        const userData = {
+            uid: Date.now().toString(),
+            email: 'user@gmail.com',
+            displayName: 'Google User',
+        };
 
-// Google auth (mock)
-document.getElementById('google-auth-btn').addEventListener('click', () => {
-    const userData = {
-        uid: Date.now().toString(),
-        email: 'user@gmail.com',
-        displayName: 'Google User',
-    };
+        storage.set(STORAGE_KEYS.USER, userData);
+        window.location.href = 'dashboard.html';
+    });
+}
 
-    storage.set(STORAGE_KEYS.USER, userData);
-    window.location.href = 'dashboard.html';
-});
 
 // ✅ 6️⃣ PLACE OTP VERIFY CODE HERE (THIS IS THE ANSWER)
 document.getElementById("verify-otp-btn")?.addEventListener("click", async () => {
