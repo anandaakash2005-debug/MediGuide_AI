@@ -204,7 +204,7 @@ body {
     font-weight: 600;
     font-size: 1rem;
     cursor: pointer;
-    transition: background-color 0.2s, box-shadow 0.2s;
+    transition: all 0.2s;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -366,6 +366,15 @@ body {
     font-weight: bold;
     color: var(--gray-900);
 }
+
+#logout-btn:hover {
+    transform: none !important;
+}
+
+.card {
+    position: relative;
+}
+
 
 .card-content {
     color: var(--gray-700);
