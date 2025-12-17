@@ -204,14 +204,41 @@ app.get("/", (req, res) => {
 app.post("/api/reminders", (req, res) => {
   const { email, title, message, time } = req.body;
 
+  if (!email || !title || !time) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
+
   const findUser = "SELECT id FROM users WHERE email = ?";
+
   db.query(findUser, [email], (err, users) => {
-    if (err || users.length === 0) {
-      return res.status(400).json({ error: "User not found" });
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "DB error" });
     }
 
-    const userId = users[0].id;
+    // 🟢 USER EXISTS → insert reminder
+    if (users.length > 0) {
+      return insertReminderForUser(users[0].id);
+    }
 
+    // 🟢 USER DOES NOT EXIST → auto-create
+    const insertUser = `
+      INSERT INTO users (email, is_verified)
+      VALUES (?, true)
+    `;
+
+    db.query(insertUser, [email], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "User creation failed" });
+      }
+
+      insertReminderForUser(result.insertId);
+    });
+  });
+
+  // 🔁 helper function (closure has access to req/res variables)
+  function insertReminderForUser(userId) {
     const insertReminder = `
       INSERT INTO reminders (user_id, title, message, remind_time)
       VALUES (?, ?, ?, ?)
@@ -222,10 +249,12 @@ app.post("/api/reminders", (req, res) => {
         console.error(err);
         return res.status(500).json({ error: "DB error" });
       }
+
       res.json({ success: true });
     });
-  });
+  }
 });
+
 
 
 app.listen(PORT, () => {
