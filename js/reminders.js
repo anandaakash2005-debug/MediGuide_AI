@@ -91,7 +91,7 @@ reminderFormElement.addEventListener('submit', async (e) => {
     };
 
     try {
-        const res = await fetch(`${API_BASE}/api/reminders`, {
+        const res = await fetch(`${API_BASE_URL}/api/reminders`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
