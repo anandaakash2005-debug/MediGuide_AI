@@ -6,6 +6,7 @@ const https = require("https");
 const path = require("path");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
+const bcrypt = require("bcryptjs");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -67,7 +68,7 @@ app.post("/send-otp", async (req, res) => {
 
 // Verify OTP
 app.post("/verify-otp", (req, res) => {
-  const { email, otp, fullName, phone } = req.body;
+  const { email, otp, fullName, phone, password } = req.body;
 
   const record = otpStore[email];
 
@@ -81,16 +82,14 @@ app.post("/verify-otp", (req, res) => {
 
   delete otpStore[email];
 
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
   const sql = `
-    INSERT INTO users (name, email, phone, is_verified)
-    VALUES (?, ?, ?, true)
-    ON DUPLICATE KEY UPDATE
-      name = VALUES(name),
-      phone = VALUES(phone),
-      is_verified = true
+    INSERT INTO users (name, email, phone, password, is_verified)
+    VALUES (?, ?, ?, ?, true)
   `;
 
-  db.query(sql, [fullName, email, phone], (err) => {
+  db.query(sql, [fullName, email, phone, hashedPassword], (err) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Database error" });
@@ -98,6 +97,41 @@ app.post("/verify-otp", (req, res) => {
     res.json({ success: true });
   });
 });
+
+
+
+app.post("/login", (req, res) => {
+  const { email, password } = req.body;
+
+  const sql = "SELECT * FROM users WHERE email = ?";
+
+  db.query(sql, [email], (err, users) => {
+    if (err) {
+      return res.status(500).json({ error: "DB error" });
+    }
+
+    if (users.length === 0) {
+      return res.status(400).json({ error: "User not found" });
+    }
+
+    const user = users[0];
+
+    const isMatch = bcrypt.compareSync(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Invalid password" });
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name
+      }
+    });
+  });
+});
+
 
 
 /* =====================================================

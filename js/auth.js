@@ -74,22 +74,31 @@ document.getElementById("auth-form").addEventListener("submit", async (e) => {
     try {
 
         if (isLogin) {
-            if (!email) {
-                showError("Email is required");
+            if (!email || !password) {
+                showError("Email and password are required");
                 setLoading(false);
                 return;
             }
 
-            const userData = {
-                uid: Date.now().toString(),
-                email,
-                displayName: email.split('@')[0],
-            };
+            const res = await fetch(`${API_BASE}/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
 
-            storage.set(STORAGE_KEYS.USER, userData);
-            window.location.href = 'dashboard.html';
+            const data = await res.json();
+
+            if (!data.success) {
+                showError(data.error);
+                setLoading(false);
+                return;
+            }
+
+            storage.set(STORAGE_KEYS.USER, data.user);
+            window.location.href = "dashboard.html";
             return;
         }
+
 
 
         if (!phone) {
@@ -99,9 +108,9 @@ document.getElementById("auth-form").addEventListener("submit", async (e) => {
         }
 
         pendingUser = {
-            uid: Date.now().toString(),
             email,
             phone,
+            password,
             displayName: email.split('@')[0],
         };
 
@@ -172,7 +181,8 @@ document.getElementById("verify-otp-btn")?.addEventListener("click", async () =>
             email: pendingUser.email,
             otp,
             fullName: pendingUser.displayName,
-            phone: pendingUser.phone
+            phone: pendingUser.phone,
+            password: pendingUser.password
         }),
     });
 
@@ -180,8 +190,12 @@ document.getElementById("verify-otp-btn")?.addEventListener("click", async () =>
     const data = await res.json();
 
     if (data.success) {
-        storage.set(STORAGE_KEYS.USER, pendingUser);
+        storage.set(STORAGE_KEYS.USER, {
+            email: pendingUser.email,
+            displayName: pendingUser.displayName
+        });
         window.location.href = "dashboard.html";
+
     } else {
         showError(data.error || "OTP verification failed");
     }
