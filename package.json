@@ -16,6 +16,7 @@
     "express": "^4.19.2",
     "mysql2": "^3.15.3",
     "node-fetch": "^3.3.2",
-    "nodemailer": "^6.9.14"
+    "nodemailer": "^6.9.14",
+    "resend": "^6.6.0"
   }
 }

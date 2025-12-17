@@ -5,7 +5,7 @@ const express = require("express");
 const https = require("https");
 const path = require("path");
 const cors = require("cors");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const bcrypt = require("bcryptjs");
 
 const app = express();
@@ -13,13 +13,12 @@ const PORT = process.env.PORT || 3001;
 
 // ENV variables
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const EMAIL_USER = process.env.EMAIL_USER;
-const EMAIL_PASS = process.env.EMAIL_PASS;
+const { Resend } = require("resend");
 
+const resend = new Resend(process.env.RESEND_API_KEY);
 // Middlewares
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
 
 /* =====================================================
    📧 EMAIL OTP LOGIC
@@ -28,13 +27,8 @@ app.use(express.static(__dirname));
 let otpStore = {}; // { email: otp,expiresAt }
 
 // Email transporter
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASS, // Gmail App Password
-  },
-});
+
+
 
 // Send OTP
 app.post("/send-otp", async (req, res) => {
@@ -48,23 +42,24 @@ app.post("/send-otp", async (req, res) => {
 
   otpStore[email] = {
     otp,
-    expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes
+    expiresAt: Date.now() + 5 * 60 * 1000,
   };
 
   try {
-    await transporter.sendMail({
-      from: `"MediGuide AI" <${EMAIL_USER}>`,
+    await resend.emails.send({
+      from: "MediGuide <onboarding@resend.dev>",
       to: email,
       subject: "Your MediGuide OTP",
       text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
     });
 
-    res.json({ success: true, message: "OTP sent to email" });
+    res.json({ success: true });
   } catch (error) {
-    console.error(error);
+    console.error("Resend error:", error);
     res.status(500).json({ error: "Failed to send OTP" });
   }
 });
+
 
 // Verify OTP
 app.post("/verify-otp", (req, res) => {
@@ -182,7 +177,7 @@ app.post("/api/reminders", (req, res) => {
   });
 });
 
-
+app.use(express.static(__dirname));
 
   // 🔁 helper function (closure has access to req/res variables)
   
