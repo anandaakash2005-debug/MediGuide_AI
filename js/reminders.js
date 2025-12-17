@@ -1,6 +1,12 @@
 import { storage, STORAGE_KEYS } from './storage.js';
 import { scheduleReminder, clearReminderInterval, requestNotificationPermission } from './notifications.js';
 
+const API_BASE_URL =
+    location.hostname === "localhost"
+        ? "http://localhost:3001"
+        : "https://mediguideai-production.up.railway.app";
+
+
 // 🔐 AUTH GUARD (ADD THIS)
 const user = storage.get(STORAGE_KEYS.USER);
 if (!user) {
@@ -85,7 +91,7 @@ reminderFormElement.addEventListener('submit', async (e) => {
     };
 
     try {
-        const res = await fetch(`${API_BASE_URL}/api/reminders`, {
+        const res = await fetch(`${API_BASE}/api/reminders`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
