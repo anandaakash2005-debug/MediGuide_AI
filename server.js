@@ -1,92 +1,86 @@
-// server.js
-require('dotenv').config();
+require("dotenv").config();
 
-const db = require('./js/db');
-const express = require('express');
-const path = require('path');
-const cors = require('cors');
-const nodemailer = require('nodemailer');
+const db = require("./js/db");
+const express = require("express");
+const https = require("https");
+const path = require("path");
+const cors = require("cors");
+const nodemailer = require("nodemailer");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Environment variables
+// ENV variables
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 
-// Middleware
+// Middlewares
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public'))); // serve frontend files
+app.use(express.static(__dirname));
 
-// In-memory OTP store (use Redis in production)
-const otpStore = {};
+/* =====================================================
+   📧 EMAIL OTP LOGIC
+===================================================== */
 
-// Email transporter (Gmail)
+let otpStore = {}; // { email: otp,expiresAt }
+
+// Email transporter
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "gmail",
   auth: {
     user: EMAIL_USER,
-    pass: EMAIL_PASS, // Use App Password
+    pass: EMAIL_PASS, // Gmail App Password
   },
 });
 
-// Email validation helper
-const isValidEmail = (email) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
-
-// ─── OTP Routes ─────────────────────────────────────
-
-app.post('/send-otp', async (req, res) => {
+// Send OTP
+app.post("/send-otp", async (req, res) => {
   const { email } = req.body;
 
-  if (!email || !isValidEmail(email)) {
-    return res.status(400).json({ error: 'Valid email is required' });
+  if (!email) {
+    return res.status(400).json({ error: "Email required" });
   }
 
-  const otp = Math.floor(100000 + Math.random() * 900000); // 6-digit
+  const otp = Math.floor(100000 + Math.random() * 900000);
+
   otpStore[email] = {
     otp,
-    expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
+    expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes
   };
 
   try {
     await transporter.sendMail({
       from: `"MediGuide AI" <${EMAIL_USER}>`,
       to: email,
-      subject: 'Your MediGuide AI OTP',
-      text: `Your 6-digit OTP is: ${otp}\nValid for 5 minutes.`,
+      subject: "Your MediGuide OTP",
+      text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
     });
 
-    res.json({ success: true, message: 'OTP sent' });
+    res.json({ success: true, message: "OTP sent to email" });
   } catch (error) {
-    console.error('Email error:', error);
-    res.status(500).json({ error: 'Failed to send OTP. Please try again.' });
+    console.error(error);
+    res.status(500).json({ error: "Failed to send OTP" });
   }
 });
 
-app.post('/verify-otp', (req, res) => {
+// Verify OTP
+app.post("/verify-otp", (req, res) => {
   const { email, otp, fullName, phone } = req.body;
-
-  if (!email || !otp || !fullName || !phone) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
 
   const record = otpStore[email];
 
-  if (!record || Date.now() > record.expiresAt) {
-    return res.status(400).json({ error: 'OTP expired' });
+  if (!record) {
+    return res.status(400).json({ error: "OTP expired" });
   }
 
-  if (record.otp !== Number(otp)) {
-    return res.status(400).json({ error: 'Invalid OTP' });
+  if (record.otp != otp || Date.now() > record.expiresAt) {
+    return res.status(400).json({ error: "Invalid or expired OTP" });
   }
 
-  // Clean up OTP
   delete otpStore[email];
 
-  // Save or update user
   const sql = `
     INSERT INTO users (name, email, phone, is_verified)
     VALUES (?, ?, ?, true)
@@ -98,59 +92,69 @@ app.post('/verify-otp', (req, res) => {
 
   db.query(sql, [fullName, email, phone], (err) => {
     if (err) {
-      console.error('DB error:', err);
-      return res.status(500).json({ error: 'Account setup failed' });
+      console.error(err);
+      return res.status(500).json({ error: "Database error" });
     }
     res.json({ success: true });
   });
 });
 
-// ─── Health Plan / Reminders ───────────────────────
 
-app.post('/api/reminders', (req, res) => {
+/* =====================================================
+   🧠 HEALTH PLAN API (OpenRouter)
+===================================================== */
+
+app.post("/api/reminders", (req, res) => {
   const { email, title, message, time } = req.body;
 
   if (!email || !title || !time) {
-    return res.status(400).json({ error: 'Email, title, and time are required' });
+    return res.status(400).json({ error: "Missing fields" });
   }
 
-  const findUser = 'SELECT id FROM users WHERE email = ? AND is_verified = true';
-  db.query(findUser, [email], (err, results) => {
+  const findUser = "SELECT id FROM users WHERE email = ?";
+
+  db.query(findUser, [email], (err, users) => {
     if (err) {
       console.error(err);
-      return res.status(500).json({ error: 'Database error' });
+      return res.status(500).json({ error: "DB error" });
     }
 
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'Verified user not found' });
+    if (users.length === 0) {
+      return res.status(400).json({ error: "User not found" });
     }
 
-    const userId = results[0].id;
-    const today = new Date().toISOString().split('T')[0];
-    const remindDateTime = `${today} ${time}:00`;
+    const userId = users[0].id;
+
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    const remindDateTime = `${today} ${time}:00`;          // DATETIME
 
     const insertReminder = `
       INSERT INTO reminders (user_id, title, message, remind_time)
       VALUES (?, ?, ?, ?)
     `;
 
-    db.query(insertReminder, [userId, title, message, remindDateTime], (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: 'Failed to save reminder' });
+    db.query(
+      insertReminder,
+      [userId, title, message, remindDateTime],
+      (err) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).json({ error: "DB error" });
+        }
+
+        res.json({ success: true });
       }
-      res.json({ success: true });
-    });
+    );
   });
 });
 
-// ─── Serve App ─────────────────────────────────────
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
 
-// Start server
+  // 🔁 helper function (closure has access to req/res variables)
+  
+
+
+
 app.listen(PORT, () => {
   console.log(`✅ MediGuide AI server running on port ${PORT}`);
 });
