@@ -5,7 +5,6 @@ const express = require("express");
 const https = require("https");
 const path = require("path");
 const cors = require("cors");
-const { Resend } = require("resend");
 const bcrypt = require("bcryptjs");
 
 const app = express();
