@@ -155,7 +155,6 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    position: relative;
 }
 
 .main-card {
@@ -218,7 +217,7 @@ body {
 
 .btn-primary:hover {
     background: linear-gradient(to right, var(--primary-700), var(--primary-800));
-    transform: none;
+    transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 

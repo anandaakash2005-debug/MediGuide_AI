@@ -2,13 +2,6 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; connect-src 'self' https://mediguide-ai-d2vc.onrender.com https://openrouter.ai;">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-
     <title>Sign In - MediGuide AI</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -44,45 +37,56 @@
                         🔐 We never ask for passwords or bank details.<br>
                         OTP is used only for email verification.
                     </div>
-                    <div id="auth-error" class="error-message" style="display: none;"></div>
+                    <div id="auth-error" class="error-message hidden"></div>
 
-                    <button type="submit" id="auth-submit-btn">
+                    <form id="auth-form">
+
                         <div class="form-group">
                             <label class="form-label">Email</label>
                             <input type="email" id="auth-email" class="form-input" placeholder="your@email.com"
-                                required />
+                                required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Phone Number</label>
-                            <input type="tel" id="auth-phone" class="form-input" placeholder="Enter phone number"
-                                pattern="[0-9]{10}" maxlength="10" required />
+                            <input type="tel" id="auth-phone" class="form-input">
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Password</label>
-                            <input type="password" id="auth-password" class="form-input" placeholder="••••••••" required
-                                minlength="6" />
+                            <input type="password" id="auth-password" class="form-input">
                         </div>
 
                         <button type="submit" id="auth-submit-btn" class="btn btn-primary btn-block">
                             <span id="auth-btn-text">Sign In</span>
-                            <span id="auth-btn-loader" class="loader" style="display: none;"></span>
+                            <span id="auth-btn-loader" class="loader hidden"></span>
                         </button>
-                        </form>
 
-                        <div class="auth-divider">
-                            <span>Or continue with</span>
+                    </form>
+
+                    <div id="otp-section" class="hidden">
+                        <div class="form-group">
+                            <label class="form-label">Enter OTP</label>
+                            <input type="text" id="otp-input" maxlength="6" class="form-input">
                         </div>
 
-                        <button id="google-auth-btn" class="btn btn-google btn-block">
-                            <span>🔍</span> Google
+                        <button type="button" id="verify-otp-btn" class="btn btn-primary btn-block">
+                            Verify OTP
                         </button>
+                    </div>
 
-                        <p class="auth-switch">
-                            <span id="auth-switch-text">Don't have an account? </span>
-                            <button id="auth-switch-btn" class="link-btn">Sign up</button>
-                        </p>
+                    <div class="auth-divider">
+                        <span>Or continue with</span>
+                    </div>
+
+                    <button id="google-auth-btn" class="btn btn-google btn-block">
+                        <span>🔍</span> Google
+                    </button>
+
+                    <p class="auth-switch">
+                        <span id="auth-switch-text">Don't have an account? </span>
+                        <button type="button" id="auth-switch-btn" class="link-btn">Sign up</button>
+                    </p>
                 </div>
             </div>
         </div>
