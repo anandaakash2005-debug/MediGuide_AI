@@ -2,11 +2,17 @@ import { storage, STORAGE_KEYS } from './storage.js';
 
 const healthPlan = storage.get(STORAGE_KEYS.HEALTH_PLAN);
 const disease = storage.get(STORAGE_KEYS.DISEASE);
+const trustBadge = document.querySelector(".who-trust-badge");
 
 if (!healthPlan) {
     window.location.href = 'index.html';
     throw new Error('No health plan found');
 }
+
+if (trustBadge && guidelineSource === "WHO") {
+    trustBadge.style.display = "flex";
+}
+
 
 // Display disease name
 const diseaseNameEl = document.getElementById('disease-name');

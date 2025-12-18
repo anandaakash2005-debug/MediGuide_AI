@@ -8,6 +8,8 @@ const generateBtn = document.getElementById('generate-btn');
 const btnText = document.getElementById('btn-text');
 const btnLoader = document.getElementById('btn-loader');
 const errorMessage = document.getElementById('error-message');
+const guidelineSource = "WHO";
+
 
 // Update nav based on user
 const user = storage.get(STORAGE_KEYS.USER);
@@ -22,7 +24,7 @@ if (user) {
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const disease = diseaseInput.value.trim();
     if (!disease) {
         showError('Please enter a disease name');
@@ -43,6 +45,9 @@ form.addEventListener('submit', async (e) => {
         }
 
         const healthPlan = await generateHealthPlan(disease, location);
+
+        healthPlan.guidelines_source = "WHO";
+        healthPlan.generated_by = "MediGuide AI";
 
         // Store health plan
         storage.set(STORAGE_KEYS.HEALTH_PLAN, healthPlan);
