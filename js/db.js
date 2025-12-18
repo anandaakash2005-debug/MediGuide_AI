@@ -6,6 +6,7 @@ const db = mysql.createConnection({
   password: process.env.MYSQLPASSWORD,
   database: process.env.MYSQLDATABASE,
   port: Number(process.env.MYSQLPORT),
+  timezone: "+05:30" 
 });
 
 // Connect to MySQL
@@ -13,7 +14,7 @@ db.connect((err) => {
   if (err) {
     console.error("❌ MySQL connection failed:", err.message);
   } else {
-    console.log("✅ MySQL connected successfully");
+    console.log("✅ MySQL connected with IST timezone");
   }
 });
 
