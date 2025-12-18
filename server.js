@@ -1,4 +1,6 @@
 require("dotenv").config();
+require("./cronReminders");
+
 
 const db = require("./js/db");
 const express = require("express");
@@ -47,9 +49,9 @@ app.post("/send-otp", async (req, res) => {
   try {
     await resend.emails.send({
       from: "MediGuide <onboarding@resend.dev>",
-      to: email,
+      to: "anandaakash2005@gmail.com", // ✅ YOUR EMAIL ONLY
       subject: "Your MediGuide OTP",
-      text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
+      text: `OTP for ${email}: ${otp} (valid 5 minutes)`,
     });
 
     res.json({ success: true });
@@ -178,8 +180,8 @@ app.post("/api/reminders", (req, res) => {
 
 app.use(express.static(__dirname));
 
-  // 🔁 helper function (closure has access to req/res variables)
-  
+// 🔁 helper function (closure has access to req/res variables)
+
 
 
 
