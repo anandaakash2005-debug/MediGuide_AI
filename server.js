@@ -156,10 +156,13 @@ app.post("/api/health-plan", (req, res) => {
     .catch(err => res.status(500).json({ error: err.message }));
 });
 
-// OpenRouter request
+
+// OpenRouter request function
 function generateHealthPlan(disease, userLocation) {
   return new Promise((resolve, reject) => {
-    const prompt = `The user has the disease: ${disease}.
+
+    const prompt = `
+The user has the disease: ${disease}.
 ${userLocation ? `User location: ${userLocation}.` : ""}
 
 Generate a complete personalized health plan including:
@@ -177,7 +180,8 @@ Return valid JSON only with this structure:
     "specialization": "",
     "location": "${userLocation || "General location"}"
   }
-}`;
+}
+`;
 
     const data = JSON.stringify({
       model: "openai/gpt-oss-20b:free",
@@ -201,14 +205,16 @@ Return valid JSON only with this structure:
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Length": data.length
       }
     };
 
     const req = https.request(options, res => {
       let body = "";
+
       res.on("data", chunk => (body += chunk));
+
       res.on("end", () => {
         try {
           const json = JSON.parse(body);
@@ -224,6 +230,7 @@ Return valid JSON only with this structure:
     req.end();
   });
 }
+
 
 
 
