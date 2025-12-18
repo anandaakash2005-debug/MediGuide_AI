@@ -112,6 +112,12 @@ app.post("/login", (req, res) => {
 
     const user = users[0];
 
+    if (!user.password) {
+      return res.status(400).json({
+        error: "Password not set. Please verify via OTP."
+      });
+    }
+
     const isMatch = bcrypt.compareSync(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: "Invalid password" });
@@ -133,6 +139,93 @@ app.post("/login", (req, res) => {
 /* =====================================================
    🧠 HEALTH PLAN API (OpenRouter)
 ===================================================== */
+
+app.post("/api/health-plan", (req, res) => {
+  const { disease, location } = req.body;
+
+  if (!disease) {
+    return res.status(400).json({ error: "Disease name is required" });
+  }
+
+  if (!OPENROUTER_API_KEY) {
+    return res.status(500).json({ error: "OpenRouter API key not configured" });
+  }
+
+  generateHealthPlan(disease, location)
+    .then(data => res.json({ success: true, data }))
+    .catch(err => res.status(500).json({ error: err.message }));
+});
+
+// OpenRouter request
+function generateHealthPlan(disease, userLocation) {
+  return new Promise((resolve, reject) => {
+    const prompt = `The user has the disease: ${disease}.
+${userLocation ? `User location: ${userLocation}.` : ""}
+
+Generate a complete personalized health plan including:
+1. Foods to eat and avoid
+2. Recommended exercises (3–5)
+3. Common medicine (name, dosage per day, duration)
+4. Type of doctor and specialization
+
+Return valid JSON only with this structure:
+{
+  "diet": { "take": [], "avoid": [] },
+  "exercise": [{ "name": "", "sets": 0, "reps": "" }],
+  "medicine": [{ "name": "", "dosage": "", "duration": "" }],
+  "doctor": {
+    "specialization": "",
+    "location": "${userLocation || "General location"}"
+  }
+}`;
+
+    const data = JSON.stringify({
+      model: "openai/gpt-oss-20b:free",
+      messages: [
+        {
+          role: "system",
+          content: "You are a medical AI assistant. Always respond with valid JSON only."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      response_format: { type: "json_object" }
+    });
+
+    const options = {
+      hostname: "openrouter.ai",
+      path: "/api/v1/chat/completions",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        "Content-Length": data.length
+      }
+    };
+
+    const apiReq = https.request(options, res => {
+      let body = "";
+      res.on("data", chunk => (body += chunk));
+      res.on("end", () => {
+        try {
+          const json = JSON.parse(body);
+          resolve(JSON.parse(json.choices[0].message.content));
+        } catch {
+          reject(new Error("Failed to parse OpenRouter response"));
+        }
+      });
+    });
+
+    req.on("error", reject);
+    req.write(data);
+    req.end();
+  });
+}
+
+
 
 app.post("/api/reminders", (req, res) => {
   const { email, title, message, time } = req.body;
