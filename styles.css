@@ -336,6 +336,13 @@ body {
 
 /* Health Plan Grid */
 
+.medical-disclaimer {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 6px;
+}
+
+
 .health-plan-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
