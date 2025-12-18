@@ -17,7 +17,7 @@ export async function generateHealthPlan(disease, location = '') {
         }
 
         const data = await response.json();
-        return data.data;
+        return data;
     } catch (error) {
         console.error('API Error:', error);
         throw error;
