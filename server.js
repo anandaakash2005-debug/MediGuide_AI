@@ -206,7 +206,7 @@ Return valid JSON only with this structure:
       }
     };
 
-    const apiReq = https.request(options, res => {
+    const req = https.request(options, res => {
       let body = "";
       res.on("data", chunk => (body += chunk));
       res.on("end", () => {
